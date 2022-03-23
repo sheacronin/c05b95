@@ -82,11 +82,12 @@ const Home = ({ user, logout }) => {
     (recipientId, message) => {
       setConversations((prevConversations) => {
         const newConversations = [...prevConversations];
-        newConversations.forEach((convo) => {
+        newConversations.forEach((convo, i) => {
           if (convo.otherUser.id === recipientId) {
-            convo.messages.push(message);
-            convo.latestMessageText = message.text;
-            convo.id = message.conversationId;
+            const convoCopy = { ...convo, messages: [...convo.messages, message] };
+            convoCopy.latestMessageText = message.text;
+            convoCopy.id = message.conversationId;
+            newConversations[i] = convoCopy;
           }
         });
         return newConversations;
@@ -111,10 +112,11 @@ const Home = ({ user, logout }) => {
 
       setConversations(prevConversations => {
         const newConversations = [...prevConversations];
-        newConversations.forEach((convo) => {
+        newConversations.forEach((convo, i) => {
           if (convo.id === message.conversationId) {
-            convo.messages.push(message);
-            convo.latestMessageText = message.text;
+            const convoCopy = {...convo, messages: [...convo.messages, message]};
+            convoCopy.latestMessageText = message.text;
+            newConversations[i] = convoCopy;
           }
         });
         return newConversations;
@@ -189,6 +191,7 @@ const Home = ({ user, logout }) => {
     const fetchConversations = async () => {
       try {
         const { data } = await axios.get('/api/conversations');
+        console.log(data);
         setConversations(data);
       } catch (error) {
         console.error(error);
