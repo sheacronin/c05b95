@@ -191,7 +191,6 @@ const Home = ({ user, logout }) => {
     const fetchConversations = async () => {
       try {
         const { data } = await axios.get('/api/conversations');
-        console.log(data);
         setConversations(data);
       } catch (error) {
         console.error(error);
