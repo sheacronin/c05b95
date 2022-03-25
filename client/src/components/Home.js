@@ -118,7 +118,18 @@ const Home = ({ user, logout }) => {
   );
 
   const setActiveChat = (username) => {
-    setActiveConversation(username);
+    const conversation = conversations
+    ? conversations.find(
+        (conversation) => conversation.otherUser.username === username
+      )
+    : {};
+
+    setActiveConversation(conversation);
+
+    // Mark all messages by the other user in this convo as read by recipient
+    if (conversation) {
+      axios.put('/api/messages/read', { conversationId: conversation.id });
+    }
   };
 
   const addOnlineUser = useCallback((id) => {
