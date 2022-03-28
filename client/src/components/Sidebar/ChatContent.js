@@ -1,4 +1,4 @@
-import React, { memo, useMemo } from "react";
+import React, { useMemo } from "react";
 import { Box, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 
