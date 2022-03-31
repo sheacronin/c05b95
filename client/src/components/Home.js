@@ -87,6 +87,7 @@ const Home = ({ user, logout }) => {
             const convoCopy = { ...convo, messages: [...convo.messages, message] };
             convoCopy.latestMessageText = message.text;
             convoCopy.id = message.conversationId;
+            convoCopy.numberOfUnreadMessages++;
             return convoCopy;
           }
           return convo;
@@ -107,6 +108,7 @@ const Home = ({ user, logout }) => {
           messages: [message],
         };
         newConvo.latestMessageText = message.text;
+        newConvo.numberOfUnreadMessages++;
         setConversations((prev) => [newConvo, ...prev]);
       }
 
@@ -116,13 +118,16 @@ const Home = ({ user, logout }) => {
           if (convo.id === message.conversationId) {
             const convoCopy = {...convo, messages: [...convo.messages, message]};
             convoCopy.latestMessageText = message.text;
+            if (message.senderId !== user.id) {
+              convoCopy.numberOfUnreadMessages++;
+            }
             return convoCopy;
           }
           return convo;
         });
       });
     },
-    [setConversations]
+    [setConversations, user]
   );
 
   const saveMesssagesAsRead = async (conversationId) => {
@@ -158,10 +163,15 @@ const Home = ({ user, logout }) => {
                 messages.forEach((updatedMessage) => {
                   if (message.id === updatedMessage.id) {
                     message.readByRecipient = true;
+                    // set the latest message read by recipient as the last updated message
+                    if (message.senderId !== convoCopy.otherUser.id) {
+                      convoCopy.otherUser.latestReadMessage = message;
+                    }
                   }
-                })
+                });
                 return message;
               });
+              convoCopy.numberOfUnreadMessages = 0;
               return convoCopy;
             }
             return convo;

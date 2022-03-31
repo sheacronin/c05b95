@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useMemo } from 'react';
+import React, { Fragment, useEffect } from 'react';
 import { Box } from '@material-ui/core';
 import { SenderBubble, OtherUserBubble } from '.';
 import moment from 'moment';
@@ -19,23 +19,12 @@ const Messages = (props) => {
     }
   }, [messages, otherUser, putMessagesAsRead]);
 
-  const memoizedLastMessageReadByRecipient = useMemo(() => {
-    const messagesFromCurrentUser = messages.filter((message) => message.senderId === userId);
-
-    for (let i = messagesFromCurrentUser.length - 1; i >= 0; i--) {
-      const message = messagesFromCurrentUser[i];
-      if (message.readByRecipient) {
-        return message;
-      }
-    }
-  }, [messages, userId]);
-
   return (
     <Box>
       {messages.map((message) => {
         const time = moment(message.createdAt).format('h:mm');
         
-        const readMarker = memoizedLastMessageReadByRecipient === message ? (
+        const readMarker = otherUser.latestReadMessage && otherUser.latestReadMessage.id === message.id ? (
           <ReadMarker otherUser={otherUser} />
         ) : (
           null

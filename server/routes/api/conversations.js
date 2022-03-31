@@ -67,17 +67,37 @@ router.get("/", async (req, res, next) => {
         convoJSON.otherUser.online = false;
       }
 
+      // set property for latest message read by recipient
+      const messagesFromCurrentUser = convoJSON.messages.filter((message) => message.senderId !== convoJSON.otherUser.id);
+      for (let i = messagesFromCurrentUser.length - 1; i >= 0; i--) {
+        const message = messagesFromCurrentUser[i];
+        if (message.readByRecipient) {
+          convoJSON.otherUser.latestReadMessage = message;
+          break;
+        }
+      }
+
       // set properties for notification count and latest message preview
       convoJSON.latestMessageText = convoJSON.messages[convoJSON.messages.length - 1].text;
       conversations[i] = convoJSON;
+
+      convoJSON.numberOfUnreadMessages = await Message.count({
+        where: {
+          conversationId: convoJSON.id,
+          readByRecipient: false,
+          [Op.not]: {
+            senderId: req.user.id,
+          },
+        }
+      });
     }
 
     // Sort conversations so most recent will be first in the array
     conversations.sort((a, b) => {
       const latestAMessage = a.messages[a.messages.length - 1];
-      const lastestBMessage = b.messages[b.messages.length - 1];
+      const latestBMessage = b.messages[b.messages.length - 1];
 
-      if (latestAMessage.createdAt > lastestBMessage.createdAt) {
+      if (latestAMessage.createdAt > latestBMessage.createdAt) {
         return -1;
       } else {
         return 1;
@@ -85,26 +105,6 @@ router.get("/", async (req, res, next) => {
     })
 
     res.json(conversations);
-  } catch (error) {
-    next(error);
-  }
-});
-
-router.get("/:conversationId/unread-message-count", async (req, res, next) => {
-  try {
-    const { conversationId } = req.params;
-  
-    const count = await Message.count({
-      where: {
-        conversationId: conversationId,
-        readByRecipient: false,
-        [Op.not]: {
-          senderId: req.user.id,
-        },
-      }
-    });
-  
-    res.json(count);
   } catch (error) {
     next(error);
   }
