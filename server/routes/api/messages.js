@@ -46,11 +46,14 @@ router.post("/", async (req, res, next) => {
 
 // Expects { conversationId } in body
 router.put("/read", async (req, res, next) => {
-  try {
-    if (!req.user) {
+  try {    
+    const { conversationId } = req.body;
+    const conversation = await Conversation.findByPk(conversationId);
+
+    if (!req.user || (req.user.id !== conversation.user1Id && req.user.id !== conversation.user2Id)) {
       return res.sendStatus(401);
     } 
-    const { conversationId } = req.body;
+
     const messages = await Message.update({ readByRecipient: true }, {
       where: {
         conversationId: conversationId,
