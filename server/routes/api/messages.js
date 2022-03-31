@@ -54,7 +54,7 @@ router.put("/read", async (req, res, next) => {
       return res.sendStatus(401);
     } 
 
-    const messages = await Message.update({ readByRecipient: true }, {
+    const [numberUpdated, messages] = await Message.update({ readByRecipient: true }, {
       where: {
         conversationId: conversationId,
         readByRecipient: false,
@@ -64,7 +64,7 @@ router.put("/read", async (req, res, next) => {
       },
       returning: true,
     });
-    res.json({ messages: messages[1] });
+    res.json({ messages });
   } catch (error) {
     next(error);
   }
