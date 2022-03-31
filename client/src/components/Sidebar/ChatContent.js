@@ -1,6 +1,7 @@
-import React, { useMemo } from "react";
+import React, { useEffect, useState } from "react";
 import { Box, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
+import axios from "axios";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -41,15 +42,20 @@ const ChatContent = ({ conversation }) => {
 
   const { otherUser } = conversation;
   const latestMessageText = conversation.id && conversation.latestMessageText;
+  const [numberOfUnreadMessages, setNumberOfUnreadMessages] = useState(0);
 
-  const memoizedNumberOfUnreadMessages = useMemo(() => {
-    const unreadMessages = conversation.messages.filter((message) => 
-      message.senderId === otherUser.id 
-      && !message.readByRecipient
-    );
+  useEffect(() => {
+    const fetchNumberOfUnreadMessages = async () => {
+      try {
+        const { data } = await axios.get(`/api/conversations/${conversation.id}/unread-message-count`);
+        setNumberOfUnreadMessages(data);
+      } catch (error) {
+        console.error(error);
+      }
+    }
 
-    return unreadMessages.length;
-  }, [conversation, otherUser]);
+    fetchNumberOfUnreadMessages();
+  }, [conversation]);
  
   return (
     <Box className={classes.root}>
@@ -57,17 +63,17 @@ const ChatContent = ({ conversation }) => {
         <Typography className={classes.username}>
           {otherUser.username}
         </Typography>
-        <Typography className={memoizedNumberOfUnreadMessages > 0 ? 
+        <Typography className={numberOfUnreadMessages > 0 ? 
           `${classes.previewText} ${classes.unreadPreviewText}`
           : classes.previewText}
         >
           {latestMessageText}
         </Typography>
       </Box>
-      {memoizedNumberOfUnreadMessages > 0 && 
+      {numberOfUnreadMessages > 0 && 
       <Box className={classes.bubble}>
         <Typography className={classes.unreadNumber}>
-          {memoizedNumberOfUnreadMessages}
+          {numberOfUnreadMessages}
         </Typography>
       </Box>}
     </Box>

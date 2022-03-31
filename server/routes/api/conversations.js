@@ -90,4 +90,24 @@ router.get("/", async (req, res, next) => {
   }
 });
 
+router.get("/:conversationId/unread-message-count", async (req, res, next) => {
+  try {
+    const { conversationId } = req.params;
+  
+    const count = await Message.count({
+      where: {
+        conversationId: conversationId,
+        readByRecipient: false,
+        [Op.not]: {
+          senderId: req.user.id,
+        },
+      }
+    });
+  
+    res.json(count);
+  } catch (error) {
+    next(error);
+  }
+});
+
 module.exports = router;
