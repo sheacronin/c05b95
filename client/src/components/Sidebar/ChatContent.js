@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Box, Typography } from "@material-ui/core";
+import { Box, Typography, Badge } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import axios from "axios";
 
@@ -20,16 +20,8 @@ const useStyles = makeStyles((theme) => ({
     letterSpacing: -0.17,
   },
   bubble: {
-    backgroundColor: '#3E92FF',
-    borderRadius: '10px',
     alignSelf: 'center',
-  },
-  unreadNumber: {
-    fontSize: 11,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-    letterSpacing: -0.2,
-    padding: '3px 8px',
+    right: '24px',
   },
   unreadPreviewText: {
     fontWeight: 'bold',
@@ -70,12 +62,7 @@ const ChatContent = ({ conversation }) => {
           {latestMessageText}
         </Typography>
       </Box>
-      {numberOfUnreadMessages > 0 && 
-      <Box className={classes.bubble}>
-        <Typography className={classes.unreadNumber}>
-          {numberOfUnreadMessages}
-        </Typography>
-      </Box>}
+      <Badge badgeContent={numberOfUnreadMessages} color="primary" className={classes.bubble} />
     </Box>
   );
 };
